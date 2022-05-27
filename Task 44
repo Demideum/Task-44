@@ -1,0 +1,224 @@
+namespace Task_44
+{
+    internal class Program
+    {
+        static void Main(string[] args)
+        {
+            Random rand = new Random();
+            Player player = new Player(rand.Next(50, 250), rand);
+            Shop shop = new Shop();
+            string userInput;
+            bool isWork = true;
+
+            while (isWork)
+            {
+                Console.WriteLine("Выбирите действие:" +
+                    "\n1. Показать список товаров в магазине." +
+                    "\n2. Купить товар." +
+                    "\n3. Показать инвентарь." +
+                    "\n4. Выход");
+
+                userInput = Console.ReadLine();
+
+                switch (userInput)
+                {
+                    case "1":
+                        shop.ShowProducts();
+                        break;
+                    case "2":
+                        shop.SaleProduct(player);
+                        break;
+                    case "3":
+                        player.ShowBag();
+                        break;
+                    case "4":
+                        Console.WriteLine("Спасибо что были с нами!");
+                        isWork = false;
+                        break;
+                    default:
+                        Console.WriteLine("Некоректный ввод");
+                        break;
+                }
+                Console.ReadKey();
+                Console.Clear();
+            }
+        }
+    }
+
+    enum Type
+    {
+        Мечь,
+        Щит,
+        Доспех
+    }
+
+    enum Material
+    {
+        Дерево,
+        Железо,
+        Сталь
+    }
+
+    class Product
+    {
+        public int Price { get; private set; }
+        public Type Type { get; private set; }
+        public Material Material { get; private set; }
+
+        public Product(Type type, Material material, int price)
+        {
+            Type = type;
+            Material = material;
+            Price = price;
+        }
+
+        public void ShowProducts()
+        {
+            Console.WriteLine($"Товар - {Type}, материал - {Material}, цена - {Price}");
+        }
+    }
+
+    class Shop
+    {
+        private int _money = 0;
+        private List<Product> _products = new List<Product>();
+
+        public Shop()
+        {
+            Random rand = new Random();
+
+            _products.Add(new Product(Type.Мечь, Material.Дерево, rand.Next(5, 15)));
+            _products.Add(new Product(Type.Мечь, Material.Железо, rand.Next(15, 30)));
+            _products.Add(new Product(Type.Мечь, Material.Сталь, rand.Next(30, 60)));
+            _products.Add(new Product(Type.Щит, Material.Дерево, rand.Next(5, 15)));
+            _products.Add(new Product(Type.Щит, Material.Железо, rand.Next(15, 30)));
+            _products.Add(new Product(Type.Щит, Material.Сталь, rand.Next(30, 60)));
+            _products.Add(new Product(Type.Доспех, Material.Дерево, rand.Next(5, 15)));
+            _products.Add(new Product(Type.Доспех, Material.Железо, rand.Next(15, 30)));
+            _products.Add(new Product(Type.Доспех, Material.Сталь, rand.Next(30, 60)));
+        }
+        public void ShowProducts()
+        {
+            if (_products.Count > 0)
+            {
+                Console.WriteLine($"В магазине {_money} золота!");
+                for (int i = 0; i < _products.Count; i++)
+                {
+                    Console.WriteLine($"\nУникальный номер товара - {i + 1}");
+                    _products[i].ShowProducts();
+                }
+                Console.WriteLine("\nДля продолжения нажмите любую клавишу.");
+            }
+            else
+            {
+                Console.WriteLine($"\nВ магазине {_money} золота! Наши полки пусты приходите завтра. Для продолжения нажмите любую клавишу.");
+            }
+        }
+
+        public void SaleProduct(Player player)
+        {
+            string productNumber;
+            bool isStringNumber;
+            int result;
+
+            Console.WriteLine($"Товар под каким номером вы хотите приобрести?");
+            isStringNumber = TryGetNumber(out productNumber, out result);
+
+            if (isStringNumber)
+            {
+                if (result >= 0 && result < _products.Count)
+                {
+                    if (player.CheckSolvency(_products[result - 1]))
+                    {
+                        Console.WriteLine("Вы совершили покупку.");
+                        _money += player.ToPay();
+                        player.GetProduct(_products[result - 1]);
+
+                    }
+                    else
+                    {
+                        PutPlug("У вас не хватило денег!");
+                    }
+                }
+                else
+                {
+                    PutPlug("Товара под таким номером нет!");
+                }
+            }
+            else
+            {
+                PutPlug("Введите корректные данные");
+            }
+        }
+
+        private void PutPlug(string message)
+        {
+            Console.WriteLine(message);
+            Console.ReadKey();
+            Console.Clear();
+        }
+
+        private bool TryGetNumber(out string userInput, out int result)
+        {
+            userInput = " ";
+            result = 0;
+            bool isStringNumber;
+
+            userInput = Console.ReadLine();
+            isStringNumber = int.TryParse(userInput, out result);
+            return isStringNumber;
+        }
+    }
+
+    class Player
+    {
+        private List<Product> _bag = new List<Product>();
+        private int _money;
+        private int _moneyToPay;
+
+        public Player(int money, Random rand)
+        {
+            _money = money;
+        }
+
+        public bool CheckSolvency(Product product)
+        {
+            _moneyToPay = product.Price;
+
+            if (_money >= _moneyToPay)
+            {
+                return true;
+            }
+            else
+            {
+                _moneyToPay = 0;
+                return false;
+            }
+        }
+        public int ToPay()
+        {
+            _money -= _moneyToPay;
+            return _moneyToPay;
+        }
+        public void GetProduct(Product product)
+        {
+            _bag.Add(product);
+        }
+        public void ShowBag()
+        {
+            if (_bag.Count > 0)
+            {
+                Console.WriteLine($"У вас {_money} золота!");
+                for (int i = 0; i < _bag.Count; i++)
+                {
+                    Console.WriteLine($"Товар - {_bag[i].Type}, материал - {_bag[i].Material}, цена покупки - {_bag[i].Price}");
+                }
+                Console.WriteLine("\nДля продолжения нажмите любую клавишу.");
+            }
+            else
+            {
+                Console.WriteLine($"У вас {_money} золота! Ваш рюкзак пуст! Для продолжения нажмите любую клавишу.");
+            }
+        }
+    }
+}
