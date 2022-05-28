@@ -8,7 +8,7 @@ namespace Task_44
             int minRandomNumber = 50;
             int maxRandomNumber = 250;
             Player player = new Player(random.Next(minRandomNumber, maxRandomNumber), random);
-            Shop shop = new Shop();
+            Vender vender = new Vender();
             string userInput;
             bool isWork = true;
 
@@ -25,10 +25,10 @@ namespace Task_44
                 switch (userInput)
                 {
                     case "1":
-                        shop.ShowShop();
+                        vender.ShowVender();
                         break;
                     case "2":
-                        shop.SaleProduct(player);
+                        vender.SaleProduct(player);
                         break;
                     case "3":
                         player.ShowBag();
@@ -80,43 +80,43 @@ namespace Task_44
         }
     }
 
-    class Item
+    class Trader
     {
-        protected List<Product> products = new List<Product>();
+        protected List<Product> Products = new List<Product>();
 
         public void ShowInfo()
         {
 
-            for (int i = 0; i < products.Count; i++)
+            for (int i = 0; i < Products.Count; i++)
             {
                 Console.WriteLine($"\nУникальный номер товара - {i + 1}");
-                products[i].ShowProducts();
+                Products[i].ShowProducts();
             }
             Console.WriteLine("\nДля продолжения нажмите любую клавишу.");
         }
     }
 
-    class Shop : Item
+    class Vender : Trader
     {
         private int _money = 0;
 
-        public Shop()
+        public Vender()
         {
             Random random = new Random();
             int minRandomNumber = 5;
             int maxRandomNumber = 60;
 
-            products.Add(new Product(Type.Мечь, Material.Дерево, random.Next(minRandomNumber, maxRandomNumber)));
-            products.Add(new Product(Type.Мечь, Material.Железо, random.Next(minRandomNumber, maxRandomNumber)));
-            products.Add(new Product(Type.Мечь, Material.Сталь, random.Next(minRandomNumber, maxRandomNumber)));
-            products.Add(new Product(Type.Щит, Material.Дерево, random.Next(minRandomNumber, maxRandomNumber)));
-            products.Add(new Product(Type.Щит, Material.Железо, random.Next(minRandomNumber, maxRandomNumber)));
-            products.Add(new Product(Type.Щит, Material.Сталь, random.Next(minRandomNumber, maxRandomNumber)));
-            products.Add(new Product(Type.Доспех, Material.Дерево, random.Next(minRandomNumber, maxRandomNumber)));
-            products.Add(new Product(Type.Доспех, Material.Железо, random.Next(minRandomNumber, maxRandomNumber)));
-            products.Add(new Product(Type.Доспех, Material.Сталь, random.Next(minRandomNumber, maxRandomNumber)));
+            Products.Add(new Product(Type.Мечь, Material.Дерево, random.Next(minRandomNumber, maxRandomNumber)));
+            Products.Add(new Product(Type.Мечь, Material.Железо, random.Next(minRandomNumber, maxRandomNumber)));
+            Products.Add(new Product(Type.Мечь, Material.Сталь, random.Next(minRandomNumber, maxRandomNumber)));
+            Products.Add(new Product(Type.Щит, Material.Дерево, random.Next(minRandomNumber, maxRandomNumber)));
+            Products.Add(new Product(Type.Щит, Material.Железо, random.Next(minRandomNumber, maxRandomNumber)));
+            Products.Add(new Product(Type.Щит, Material.Сталь, random.Next(minRandomNumber, maxRandomNumber)));
+            Products.Add(new Product(Type.Доспех, Material.Дерево, random.Next(minRandomNumber, maxRandomNumber)));
+            Products.Add(new Product(Type.Доспех, Material.Железо, random.Next(minRandomNumber, maxRandomNumber)));
+            Products.Add(new Product(Type.Доспех, Material.Сталь, random.Next(minRandomNumber, maxRandomNumber)));
         }
-        public void ShowShop()
+        public void ShowVender()
         {
             Console.WriteLine($"В магазине {_money} золота!");
             ShowInfo();
@@ -133,13 +133,13 @@ namespace Task_44
 
             if (isStringNumber)
             {
-                if (result > 0 && result < products.Count + 1)
+                if (result > 0 && result < Products.Count + 1)
                 {
-                    if (player.CheckSolvency(products[result - 1]))
+                    if (player.CheckSolvency(Products[result - 1]))
                     {
                         Console.WriteLine("Вы совершили покупку.");
                         _money += player.ToPay();
-                        player.GetProduct(products[result - 1]);
+                        player.GetProduct(Products[result - 1]);
 
                     }
                     else
@@ -177,9 +177,8 @@ namespace Task_44
         }
     }
 
-    class Player : Item
+    class Player : Trader
     {
-        //private List<Product> _bag = new List<Product>();
         private int _money;
         private int _moneyToPay;
 
@@ -209,11 +208,11 @@ namespace Task_44
         }
         public void GetProduct(Product product)
         {
-            products.Add(product);
+            Products.Add(product);
         }
         public void ShowBag()
         {
-            if (products.Count > 0)
+            if (Products.Count > 0)
             {
                 Console.WriteLine($"У вас {_money} золота!");
                 ShowInfo();
